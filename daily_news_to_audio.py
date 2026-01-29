@@ -1,6 +1,7 @@
 import datetime
 import requests
 import os
+import time
 
 OPENAI_API_KEY = os.environ["OPENAI_API_KEY"]
 TELEGRAM_BOT_TOKEN = os.environ["TELEGRAM_BOT_TOKEN"]
@@ -9,21 +10,34 @@ TELEGRAM_CHAT_ID = os.environ["TELEGRAM_CHAT_ID"]
 
 PROMPT = """Din prompt här (din nyhetsstruktur med källkrav, ELI5, konsekvenser, ekonomi osv)."""
 
-def openai_responses(prompt: str) -> str:
-    # Skapar text med Responses API (rekommenderad för nya projekt). :contentReference[oaicite:1]{index=1}
-    r = requests.post(
-        "https://api.openai.com/v1/responses",
-        headers={"Authorization": f"Bearer {OPENAI_API_KEY}"},
-        json={
-            "model": "gpt-4o-mini",
-            "input": prompt,
-        },
-        timeout=120,
-    )
-    r.raise_for_status()
-    data = r.json()
-    # Plocka ut text (fält kan variera mellan SDK/format, så håll koll vid behov)
-    return data["output"][0]["content"][0]["text"]
+
+def openai_responses(prompt: str, retries: int = 5) -> str:
+    for attempt in range(retries):
+        r = requests.post(
+            "https://api.openai.com/v1/responses",
+            headers={
+                "Authorization": f"Bearer {OPENAI_API_KEY}",
+                "Content-Type": "application/json",
+            },
+            json={
+                "model": "gpt-4o-mini",
+                "input": prompt,
+            },
+            timeout=120,
+        )
+
+        if r.status_code == 429:
+            wait = 2 ** attempt
+            print(f"Rate limited. Waiting {wait}s and retrying...")
+            time.sleep(wait)
+            continue
+
+        r.raise_for_status()
+        data = r.json()
+        return data["output"][0]["content"][0]["text"]
+
+    raise RuntimeError("OpenAI API rate limit exceeded after retries")
+
 
 def openai_tts(text: str, out_path: str):
     # Text till tal via Audio API /audio/speech. :contentReference[oaicite:2]{index=2}
