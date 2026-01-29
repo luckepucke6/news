@@ -1,6 +1,6 @@
 import datetime
 import requests
-from apikey import OPENAI_API_KEY
+from apikey import OPENAI_API_KEY, TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID
 
 
 PROMPT = """Din prompt här (din nyhetsstruktur med källkrav, ELI5, konsekvenser, ekonomi osv)."""
@@ -43,10 +43,21 @@ def main():
     text = openai_responses(PROMPT)
     mp3_path = f"daily_news_{today}.mp3"
     openai_tts(text, mp3_path)
-    print(f"Saved {mp3_path}")
+    send_to_telegram(mp3_path)
+    print(f"Sent {mp3_path} to Telegram")
 
-    # TODO: steg 3. Skicka filen till dig (Telegram/Drive/Email)
-    # Exempel: ladda upp till S3/Drive eller posta till en webhook.
+
+def send_to_telegram(mp3_path: str):
+    url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendAudio"
+    with open(mp3_path, "rb") as audio:
+        requests.post(
+            url,
+            data={"chat_id": TELEGRAM_CHAT_ID},
+            files={"audio": audio},
+            timeout=120,
+        )
+
+
 
 if __name__ == "__main__":
     main()
