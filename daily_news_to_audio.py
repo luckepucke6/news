@@ -8,7 +8,21 @@ TELEGRAM_BOT_TOKEN = os.environ["TELEGRAM_BOT_TOKEN"]
 TELEGRAM_CHAT_ID = os.environ["TELEGRAM_CHAT_ID"]
 
 
-PROMPT = """Din prompt här (din nyhetsstruktur med källkrav, ELI5, konsekvenser, ekonomi osv)."""
+PROMPT = """
+Sammanfatta dagens viktigaste nyheter.
+
+Krav:
+- Dela upp i sektioner: Sverige, Världen, AI, Ekonomi.
+- Använd kort och sakligt språk.
+- För varje nyhet: vad har hänt och varför det spelar roll.
+- Lägg till en kort ELI5-förklaring för komplexa ämnen.
+- Lyft konsekvenser framåt.
+- Fokusera på sådant som påverkar vardag, studier, jobb och privatekonomi.
+- Undvik åsikter. Markera osäkerhet tydligt.
+
+Skriv som ett manus för uppläsning.
+"""
+
 
 
 def openai_responses(prompt: str, retries: int = 5) -> str:
@@ -20,7 +34,7 @@ def openai_responses(prompt: str, retries: int = 5) -> str:
                 "Content-Type": "application/json",
             },
             json={
-                "model": "gpt-4.1-mini",
+                "model": "gpt-4o-mini",
                 "input": prompt,
             },
             timeout=120,
