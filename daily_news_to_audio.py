@@ -20,7 +20,7 @@ def openai_responses(prompt: str, retries: int = 5) -> str:
                 "Content-Type": "application/json",
             },
             json={
-                "model": "gpt-4o-mini",
+                "model": "gpt-4.1-mini",
                 "input": prompt,
             },
             timeout=120,
