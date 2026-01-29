@@ -1,6 +1,10 @@
 import datetime
 import requests
-from apikey import OPENAI_API_KEY, TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID
+import os
+
+OPENAI_API_KEY = os.environ["OPENAI_API_KEY"]
+TELEGRAM_BOT_TOKEN = os.environ["TELEGRAM_BOT_TOKEN"]
+TELEGRAM_CHAT_ID = os.environ["TELEGRAM_CHAT_ID"]
 
 
 PROMPT = """Din prompt här (din nyhetsstruktur med källkrav, ELI5, konsekvenser, ekonomi osv)."""
